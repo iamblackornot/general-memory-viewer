@@ -5,24 +5,51 @@
 
 #include <general.hpp>
 
-inline sf::Color CellIdToColor(uint8_t id, uint8_t total_count)
+namespace
 {
-    static const uint32_t COLOR_MAX = 255 * 255 * 255;
-    uint32_t step = COLOR_MAX / total_count;
-    uint32_t color = id * step;
-    color <<= 8;
-    color |= 0b11111111;
+    #define CELL_SIZE 10
+    #define TITLE "General Map"
 
-    return sf::Color(color);
+    inline sf::Color CellIdToColor(uint8_t id, uint8_t total_count)
+    {
+        static const uint32_t COLOR_MAX = 255 * 255 * 255;
+        uint32_t step = COLOR_MAX / total_count;
+        uint32_t color = id * step;
+        color <<= 8;
+        color |= 0b11111111;
+
+        return sf::Color(color);
+    }
+
+    inline void DrawMap(sf::RenderWindow& window, TSquaresArray const& map)
+    {
+        for(uint32_t row = 0; row < map.Height(); ++row)
+        {
+            for(uint32_t col = 0; col < map.Width(); ++col)
+            {
+                sf::RectangleShape cell(sf::Vector2f(CELL_SIZE, CELL_SIZE));
+                cell.setPosition({ 
+                    static_cast<float>(col * CELL_SIZE), 
+                    static_cast<float>(row * CELL_SIZE), 
+                });
+
+                TSquare const& square = map.At(col, row);
+                sf::Color color = CellIdToColor(square.country_id, 20);
+
+                cell.setFillColor(color);
+                window.draw(cell);
+            }
+        }
+    }
 }
+
 
 inline void ShowMap(General& general)
 {
-    static uint32_t const cell_size = 10;
-    static sf::String const title = "General Map";
+    
 
     auto const& map = general.GetGameState().GetSquaresArray();
-    sf::RenderWindow window(sf::VideoMode({ cell_size * map.Width(), cell_size * map.Height(), }), title);
+    sf::RenderWindow window(sf::VideoMode({ CELL_SIZE * map.Width(), CELL_SIZE * map.Height(), }), TITLE);
 
     while (window.isOpen())
     {
@@ -36,7 +63,7 @@ inline void ShowMap(General& general)
                 if (keyEvent->code == sf::Keyboard::Key::Space)
                 {
                     general.Update();
-                    window.create(sf::VideoMode({ cell_size * map.Width(), cell_size * map.Height() }), title);
+                    window.create(sf::VideoMode({ CELL_SIZE * map.Width(), CELL_SIZE * map.Height() }), TITLE);
                 }
             }
             
@@ -44,24 +71,7 @@ inline void ShowMap(General& general)
 
         window.clear();
 
-        for(uint32_t row = 0; row < map.Height(); ++row)
-        {
-            for(uint32_t col = 0; col < map.Width(); ++col)
-            {
-                //std::cout << (int)cols[col].At(row).country_id;
-                sf::RectangleShape cell(sf::Vector2f(cell_size, cell_size));
-                cell.setPosition({ 
-                    static_cast<float>(col * cell_size), 
-                    static_cast<float>(row * cell_size), 
-                });
-
-                TSquare const& square = map.At(col, row);
-                sf::Color color = CellIdToColor(square.country_id, 20);
-
-                cell.setFillColor(color);
-                window.draw(cell);
-            }
-        }
+        DrawMap(window, map);
 
         window.display();
     }
