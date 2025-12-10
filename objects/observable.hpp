@@ -16,14 +16,24 @@ protected:
     ObservableObject() = default;
 
     template<typename T>
-    T const& GetValue(size_t offset) const
+    T const& GetValue(uint32_t offset) const
     {
+        if(offset < 0 || offset >= size)
+        {
+            throw CreateOutOfRangeException(offset);
+        }
+
         return *(reinterpret_cast<T const*>(GetActiveBufferPtr() + offset));
     }
 
     template<typename T>
-    T const& GetValuePrev(size_t offset) const
+    T const& GetValuePrev(uint32_t offset) const
     {
+        if(offset < 0 || offset >= size)
+        {
+            throw CreateOutOfRangeException(offset);
+        }
+
         return *(reinterpret_cast<T const*>(GetPrevBufferPtr() + offset));
     }
 
@@ -57,9 +67,14 @@ private:
         return buffer[last_updated_buf].data();
     }
 
+    auto CreateOutOfRangeException(uint32_t offset) const
+    {
+        return std::out_of_range(std::format("ObservableObject: out of range (offset = {}, size = {})", offset, size));
+    }
+
 private:
     std::vector<uint8_t> buffer[2];
     uint8_t last_updated_buf = 0;
     uint32_t address;
-    size_t size = 0;
+    uint32_t size = 0;
 };

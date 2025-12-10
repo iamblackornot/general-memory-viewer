@@ -5,12 +5,12 @@
 template<typename T>
 struct ObservableArray : public ObservableObject
 {
-    SIZE_T GetMemorySize()
+    uint32_t GetMemorySize()
     {
         return size * (sizeof(T));
     }
 
-    size_t Size() const
+    uint32_t Size() const
     {
         return size;
     }
@@ -22,15 +22,15 @@ struct ObservableArray : public ObservableObject
         return ObservableObject::Update(process_id, address, GetMemorySize());
     }
 
-    T const& At (size_t index) const
+    T const& At (uint32_t index) const
     {
         return GetValue<T>(index * sizeof(T));
     }
 
-    T const& AtPrev (size_t index) const
+    T const& AtPrev (uint32_t index) const
     {
         return GetValuePrev<T>(index * sizeof(T));
     }
 private:
-    size_t size = 0;
+    uint32_t size = 0;
 };

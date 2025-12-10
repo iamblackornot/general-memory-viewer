@@ -4,6 +4,8 @@
 #include <iomanip>
 #include <cstdint>
 #include <cstring>
+#include <format>
+#include <functional>
 
 #include "style.hpp"
 #include "objects/layout.hpp"
@@ -11,25 +13,13 @@
 
 #define PRINT_VALUE_WITDH 10
 
-// inline void PrintInt(std::ostream& output, uint8_t const* ptr, size_t size) 
-// {
-//     output << " " << COLOR_BRIGHT_GREEN << std::setw(PRINT_VALUE_WITDH);
-
-//     if      (size == 1) output << +(*ptr);
-//     else if (size == 2) output << *reinterpret_cast<uint16_t const*>(ptr);
-//     else if (size == 4) output << *reinterpret_cast<uint32_t const*>(ptr);
-//     else if (size == 8) output << *reinterpret_cast<uint64_t const*>(ptr);
-//     else                output << "wrong int size";
-
-//     output << " " << COLOR_RESET;
-// }
 template<typename TScalarType>
 inline void PrintInt(std::ostream& output, TScalarType scalar_value) 
 {
     output << " " << COLOR_BRIGHT_GREEN << std::setw(PRINT_VALUE_WITDH) << scalar_value << " " << COLOR_RESET;    
 }
 
-inline void PrintInt(std::ostream& output, uint8_t const* ptr, size_t size) 
+inline void PrintInt(std::ostream& output, uint8_t const* ptr, uint32_t size) 
 {
     if      (size == 1) PrintInt(output, +(*ptr));
     else if (size == 2) PrintInt(output, *reinterpret_cast<uint16_t const*>(ptr));
@@ -91,7 +81,7 @@ inline void PrintMemoryLayout(std::ostream& output, MemoryLayout const& layout, 
 {
     PrintMemoryAddressHeader(output, address);
 
-    size_t total_offset = 0;
+    uint32_t total_offset = 0;
 
     for(LayoutRegion const& region : layout)
     {
@@ -128,7 +118,7 @@ inline void PrintMemoryLayoutDiff(
 {
     PrintMemoryAddressHeader(output, address);
 
-    size_t total_offset = 0;
+    uint32_t total_offset = 0;
 
     for(LayoutRegion const& region : layout)
     {
@@ -142,12 +132,39 @@ inline void PrintMemoryLayoutDiff(
     }
 }
 
+template<typename TValueType>
+using TPrintArrayValueCallback = std::function<void(std::ostream&, TValueType const&)>;
+
+template<typename TValueType>
+inline void PrintArrayDiff(std::ostream& output, ObservableArray<TValueType> const& array, TPrintArrayValueCallback<TValueType> print) 
+{
+    PrintMemoryAddressHeader(output, array.GetAddress());
+
+    for(uint32_t i = 0; i < array.Size(); ++i)
+    {
+        output << COLOR_BLUE << std::setw(3) << i << COLOR_RESET << " | ";
+
+        TValueType const& value = array.At(i);
+        TValueType const& prev_value = array.AtPrev(i);
+
+        if(value != prev_value) { output << BG_BLUE; }
+
+        print(output, value);
+
+        output << COLOR_RESET << " | ";
+
+        print(output, value);
+
+        output << COLOR_RESET << "\n";
+    }
+}
+
 template<typename T>
 inline void PrintArrayDiff(std::ostream& output, RegionType value_type, ObservableArray<T> const& array) 
 {
     PrintMemoryAddressHeader(output, array.GetAddress());
 
-    for(size_t i = 0; i < array.Size(); ++i)
+    for(uint32_t i = 0; i < array.Size(); ++i)
     {
         output << COLOR_BLUE << std::setw(3) << i << COLOR_RESET << " | ";
 

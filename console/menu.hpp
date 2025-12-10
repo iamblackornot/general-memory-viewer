@@ -1,7 +1,8 @@
 #pragma once
 
 #include <cstdint>
-#include "general.hpp"
+#include <general.hpp>
+#include <console/sfml.hpp>
 
 void PrintMenu()
 {
@@ -25,12 +26,14 @@ int MenuLoop()
 
         std::cin >> input;
 
+        if(input == "q") continue;
+
         if(general.Update())
         {
             if(input == "1")
                 general.GetGameState().PrintGameState();
             else if(input == "2")
-                general.GetGameState().GetSquaresArray().DrawMap();
+                ShowMap(general);
             else if(input == "3")
                 general.GetGameState().GetSquaresArray().PrintMap();
             else if(input == "4")
@@ -40,14 +43,14 @@ int MenuLoop()
             else if(input == "6")
             {
                 std::cin >> input;
-                size_t id = std::stoull(input);
+                uint32_t id = std::stoul(input);
                 general.GetGameState().GetRegionArray().PrintRegionDiff(id - 1);
             }
             else if(input == "7")
             {
                 std::cin >> input;
-                size_t id = std::stoull(input);
-                general.GetGameState().GetRegionArray().GetLastAssignedCoords(id - 1).PrintDiff();
+                uint32_t id = std::stoul(input);
+                general.GetGameState().GetRegionArray().GetAssignedCoords(id - 1).PrintDiff();
             }
                 
         }
