@@ -7,7 +7,7 @@
 
 namespace
 {
-    #define CELL_SIZE 10
+    #define CELL_SIZE 8
     #define TITLE "General Map"
 
     inline sf::Color CellIdToColor(uint8_t id, uint8_t total_count)
@@ -21,33 +21,34 @@ namespace
         return sf::Color(color);
     }
 
+    inline void DrawSquare(sf::RenderWindow& window, TSquare const& square, uint32_t col, uint32_t row)
+    {
+        sf::RectangleShape cell(sf::Vector2f(CELL_SIZE, CELL_SIZE));
+        cell.setPosition({ 
+            static_cast<float>(col * CELL_SIZE), 
+            static_cast<float>(row * CELL_SIZE), 
+        });
+
+        sf::Color color = CellIdToColor(square.country_id, 20);
+
+        cell.setFillColor(color);
+        window.draw(cell);
+    }
+
     inline void DrawMap(sf::RenderWindow& window, TSquaresArray const& map)
     {
         for(uint32_t row = 0; row < map.Height(); ++row)
         {
             for(uint32_t col = 0; col < map.Width(); ++col)
             {
-                sf::RectangleShape cell(sf::Vector2f(CELL_SIZE, CELL_SIZE));
-                cell.setPosition({ 
-                    static_cast<float>(col * CELL_SIZE), 
-                    static_cast<float>(row * CELL_SIZE), 
-                });
-
-                TSquare const& square = map.At(col, row);
-                sf::Color color = CellIdToColor(square.country_id, 20);
-
-                cell.setFillColor(color);
-                window.draw(cell);
+                DrawSquare(window, map.At(col, row), row, col);
             }
         }
     }
 }
 
-
 inline void ShowMap(General& general)
 {
-    
-
     auto const& map = general.GetGameState().GetSquaresArray();
     sf::RenderWindow window(sf::VideoMode({ CELL_SIZE * map.Width(), CELL_SIZE * map.Height(), }), TITLE);
 
@@ -66,7 +67,6 @@ inline void ShowMap(General& general)
                     window.create(sf::VideoMode({ CELL_SIZE * map.Width(), CELL_SIZE * map.Height() }), TITLE);
                 }
             }
-            
         }
 
         window.clear();
