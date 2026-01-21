@@ -4,6 +4,7 @@
 
 #define DEFAULT_SQUARE "  "
 #define MARKED_SQUARE "▓▓"
+#define CONQUERED_SQUARE "▪▪"
 
 void PrintColoredSquare(std::ostream& out, TSquare const& square)
 {
@@ -14,7 +15,7 @@ void PrintColoredSquareDiff(std::ostream& out, TSquare const& square, TSquare co
 {
     if(square.country_id != prev.country_id && prev.country_id > 0)
     {
-        out << CountryIdToBGColor(square.country_id - 1) << CountryIdToFGColor(prev.country_id - 1) << " " << "▄" << COLOR_RESET;
+        out << CountryIdToBGColor(square.country_id - 1) << CountryIdToFGColor(prev.country_id - 1) << CONQUERED_SQUARE << COLOR_RESET;
     }
     else
     {
