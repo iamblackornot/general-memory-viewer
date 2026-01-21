@@ -40,6 +40,15 @@ struct TCoordsArray
         PrintArrayDiff<TCoords>(std::cout, coords, print_callback);
     }
 
+    void Print(std::ostream& output) const
+    {
+        for(uint32_t i = 0; i < coords.Size(); ++i)
+        {
+            coords.At(i).Print(output);
+            output << "\n";
+        }
+    }
+
     uint32_t GetMemorySize()
     {
         return Size() * static_cast<uint32_t>(sizeof(uint32_t));

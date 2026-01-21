@@ -17,9 +17,9 @@ struct TGameState : public ObservableObject
         {
             LayoutRegion(0u, 4u, RegionType::POINTER, "vtable_ptr"),
             
-            LayoutRegion(4u, 1u, RegionType::INTEGER, "territory_size_2"),
-            LayoutRegion(5u, 1u, RegionType::INTEGER, "territory_size"),
-            LayoutRegion(6u, 1u, RegionType::INTEGER, "flag_or_opt"),
+            LayoutRegion(4u, 1u, RegionType::INTEGER, "width"),
+            LayoutRegion(5u, 1u, RegionType::INTEGER, "height"),
+            LayoutRegion(6u, 1u, RegionType::INTEGER, "is_cylinder_world"),
             LayoutRegion(7u, 1u, RegionType::INTEGER, "unknown_1"),
             
             LayoutRegion(8u, 4u, RegionType::POINTER, "squares_ptr"),
@@ -72,7 +72,7 @@ struct TGameState : public ObservableObject
             LayoutRegion(62u, 1u, RegionType::INTEGER, "unknown_22"),
             LayoutRegion(63u, 1u, RegionType::INTEGER, "unknown_23"),
             
-            LayoutRegion(64u, 4u, RegionType::POINTER, "boolena_array_ptr"),
+            LayoutRegion(64u, 4u, RegionType::POINTER, "boolen_array_ptr"),
             LayoutRegion(68u, 4u, RegionType::POINTER, "word_array_2_ptr")
         };
 
@@ -89,13 +89,24 @@ struct TGameState : public ObservableObject
         return last_region.offset + last_region.size;
     }
 
+    uint32_t TerritorySize() const
+    {
+        return GetValue<uint8_t>(4u);
+    }
+
+    uint32_t CountryCount() const
+    {
+        return GetValue<uint8_t>(12u);
+    }
+
+
     bool Update(DWORD process_id, uint32_t address)
     {
         if(!ObservableObject::Update(process_id, address, TGameState::GetMemorySize())) { return false; }
 
-        if(!region_array.Update(process_id, GetValue<uint32_t>(16u), GetValue<uint8_t>(12u))) { return false; }
+        if(!region_array.Update(process_id, GetValue<uint32_t>(16u), CountryCount())) { return false; }
 
-        return squares_array.Update(process_id, GetValue<uint32_t>(8u), GetValue<uint8_t>(4u));
+        return squares_array.Update(process_id, GetValue<uint32_t>(8u), TerritorySize());
     }
 
     void PrintGameState() const

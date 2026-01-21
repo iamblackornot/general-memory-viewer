@@ -7,16 +7,17 @@
 #include <format>
 #include <functional>
 
-#include "style.hpp"
-#include "objects/layout.hpp"
-#include "objects/array.hpp"
+#include <fwd.hpp>
+#include <console/style.hpp>
+#include <objects/layout.hpp>
+#include <objects/array.hpp>
 
 #define PRINT_VALUE_WITDH 10
 
 template<typename TScalarType>
 inline void PrintInt(std::ostream& output, TScalarType scalar_value) 
 {
-    output << " " << COLOR_BRIGHT_GREEN << std::setw(PRINT_VALUE_WITDH) << scalar_value << " " << COLOR_RESET;    
+    output << " " << FG_BRIGHT_GREEN << std::setw(PRINT_VALUE_WITDH) << scalar_value << " " << COLOR_RESET;    
 }
 
 inline void PrintInt(std::ostream& output, uint8_t const* ptr, uint32_t size) 
@@ -31,7 +32,7 @@ inline void PrintInt(std::ostream& output, uint8_t const* ptr, uint32_t size)
 inline void PrintPtr32(std::ostream& output, uint32_t const ptr) 
 {
     output 
-        << std::uppercase << COLOR_BRIGHT_GREEN << " 0x" << std::hex << std::setw(PRINT_VALUE_WITDH - 2) << std::setfill('0') 
+        << std::uppercase << FG_YELLOW << " 0x" << std::hex << std::setw(PRINT_VALUE_WITDH - 2) << std::setfill('0') 
         << ptr << " " << std::dec << std::setfill(' ') << COLOR_RESET;
 }
 
@@ -60,7 +61,7 @@ inline void PrintValue(std::ostream& output, RegionType value_type, TValueType v
 inline void PrintMemoryAddressHeader(std::ostream& output, uint32_t const address) 
 {
     output << "    ----------------\n";
-    output << "    | " << COLOR_YELLOW << std::setw(3);
+    output << "    | " << FG_YELLOW << std::setw(3);
     
     PrintPtr32(output, address);
     
@@ -70,7 +71,7 @@ inline void PrintMemoryAddressHeader(std::ostream& output, uint32_t const addres
 
 inline void PrintLayoutRegion(std::ostream& output, LayoutRegion const& region, uint8_t const* base_ptr) 
 {
-    output << COLOR_BLUE << std::setw(3) << region.offset << COLOR_RESET << " | ";
+    output << FG_BLUE << std::setw(3) << region.offset << COLOR_RESET << " | ";
 
     PrintValue(output, region, base_ptr);
 
@@ -94,7 +95,7 @@ inline void PrintMemoryLayout(std::ostream& output, MemoryLayout const& layout, 
 
 inline void PrintLayoutRegionDiff(std::ostream& output, LayoutRegion const& region, uint8_t const* updated_ptr, uint8_t const* prev_ptr) 
 {
-    output << COLOR_BLUE << std::setw(3) << region.offset << COLOR_RESET << " | ";
+    output << FG_BLUE << std::setw(3) << region.offset << COLOR_RESET << " | ";
 
     bool changed = std::memcmp(updated_ptr + region.offset, prev_ptr + region.offset, region.size);
 
@@ -142,7 +143,7 @@ inline void PrintArrayDiff(std::ostream& output, ObservableArray<TValueType> con
 
     for(uint32_t i = 0; i < array.Size(); ++i)
     {
-        output << COLOR_BLUE << std::setw(3) << i << COLOR_RESET << " | ";
+        output << FG_BLUE << std::setw(3) << i << COLOR_RESET << " | ";
 
         TValueType const& value = array.At(i);
         TValueType const& prev_value = array.AtPrev(i);
@@ -153,7 +154,7 @@ inline void PrintArrayDiff(std::ostream& output, ObservableArray<TValueType> con
 
         output << COLOR_RESET << " | ";
 
-        print(output, value);
+        print(output, prev_value);
 
         output << COLOR_RESET << "\n";
     }
@@ -166,7 +167,7 @@ inline void PrintArrayDiff(std::ostream& output, RegionType value_type, Observab
 
     for(uint32_t i = 0; i < array.Size(); ++i)
     {
-        output << COLOR_BLUE << std::setw(3) << i << COLOR_RESET << " | ";
+        output << FG_BLUE << std::setw(3) << i << COLOR_RESET << " | ";
 
         T value = array.At(i);
         T prev_value = array.AtPrev(i);
