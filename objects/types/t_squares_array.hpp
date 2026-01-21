@@ -107,6 +107,23 @@ struct TSquaresArray
             std::cout << "\n";
         }
     }
+    
+    void PrintMapDiff() const
+    {
+        std::cout << "\n";
+        // std::cout << std::setw(2) << std::setfill('0');
+
+        for(uint32_t row = 0; row < size; ++row)
+        {
+            for(uint32_t col = 0; col < size; ++col)
+            {
+                //std::cout << "[" << std::setw(2) << std::setfill('0') << (int)cols[col].At(row).country_id << "]";
+                PrintColoredSquareDiff(std::cout, cols[col].At(row), cols[col].AtPrev(row));
+            }
+
+            std::cout << "\n";
+        }
+    }
 
     void PrintNeighbourCountMap() const
     {
@@ -143,34 +160,7 @@ struct TSquaresArray
         );
     }
 private:
-    inline void PrintColoredSquare(std::ostream& out, TSquare const& square) const
-    {
-        static constexpr const std::string_view id_to_terminal_color_256[]
-        {
-            BG_RED_256,
-            BG_NAVY_BLUE_256,
-            BG_GREEN_256,
-            BG_BLACK_256,
-            BG_TEAL_256,
-            BG_CYAN_256,
-            BG_PURPLE_256,
-            BG_YELLOW_256,
-            BG_OLIVE_256,
-            BG_GRAY_256,
-            BG_SKY_BLUE_256,
-            BG_PINK_256,
-            BG_LIGHT_GREEN_256,
-            BG_LAVENDER_256,
-            BG_ORANGE_256,
-            BG_OLIVE_GREEN_256,
-            BG_LIGHT_GRAY_256,
-            BG_SALMON_256,
-            BG_CREAM_256,
-            BG_INDIGO_256,
-        };
 
-        out << id_to_terminal_color_256[square.country_id - 1] << (square.mark_for_transfer ? "▓▓" : "  ") << COLOR_RESET;
-    }
 
 private:
     ObservableArray<uint32_t> col_ptrs;

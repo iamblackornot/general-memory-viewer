@@ -42,7 +42,7 @@ int MenuLoop()
             else if(input == "2")
                 ShowMap(general);
             else if(input == "3")
-                general.GetGameState().GetSquaresArray().PrintMap();
+                general.GetGameState().GetSquaresArray().PrintMapDiff();
             else if(input == "4")
                 general.GetGameState().GetSquaresArray().PrintColumns();
             else if(input == "5")

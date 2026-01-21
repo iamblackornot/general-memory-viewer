@@ -67,3 +67,86 @@
 #define BG_SALMON_256      "\033[48;5;210m"      // Light red
 #define BG_CREAM_256       "\033[48;5;230m"      // Very light yellow
 #define BG_INDIGO_256      "\033[48;5;55m"       // Dark purple
+
+#define FG_RED_256         "\033[38;5;196m"      // Bright red
+#define FG_NAVY_BLUE_256   "\033[38;5;18m"       // Dark blue
+#define FG_GREEN_256       "\033[38;5;28m"       // Dark green
+#define FG_BLACK_256       "\033[38;5;0m"        // Black
+#define FG_TEAL_256        "\033[38;5;30m"       // Dark cyan
+#define FG_CYAN_256        "\033[38;5;51m"       // Bright cyan
+#define FG_PURPLE_256      "\033[38;5;91m"       // Dark magenta
+#define FG_YELLOW_256      "\033[38;5;226m"      // Bright yellow
+#define FG_OLIVE_256       "\033[38;5;100m"      // Olive
+#define FG_GRAY_256        "\033[38;5;245m"      // Medium gray
+#define FG_SKY_BLUE_256    "\033[38;5;39m"       // Light blue
+#define FG_PINK_256        "\033[38;5;212m"      // Light magenta
+#define FG_LIGHT_GREEN_256 "\033[38;5;120m"      // Light green
+#define FG_LAVENDER_256    "\033[38;5;147m"      // Light purple
+#define FG_ORANGE_256      "\033[38;5;208m"      // Orange
+#define FG_OLIVE_GREEN_256 "\033[38;5;64m"       // Dark olive
+#define FG_LIGHT_GRAY_256  "\033[38;5;250m"      // Light gray
+#define FG_SALMON_256      "\033[38;5;210m"      // Light red
+#define FG_CREAM_256       "\033[38;5;230m"      // Very light yellow
+#define FG_INDIGO_256      "\033[38;5;55m"       // Dark purple
+
+inline std::string_view CountryIdToBGColor(uint32_t id)
+{
+    static constexpr const std::string_view id_to_terminal_bg_color_256[]
+    {
+        BG_RED_256,
+        BG_NAVY_BLUE_256,
+        BG_GREEN_256,
+        BG_BLACK_256,
+        BG_TEAL_256,
+        BG_CYAN_256,
+        BG_PURPLE_256,
+        BG_YELLOW_256,
+        BG_OLIVE_256,
+        BG_GRAY_256,
+        BG_SKY_BLUE_256,
+        BG_PINK_256,
+        BG_LIGHT_GREEN_256,
+        BG_LAVENDER_256,
+        BG_ORANGE_256,
+        BG_OLIVE_GREEN_256,
+        BG_LIGHT_GRAY_256,
+        BG_SALMON_256,
+        BG_CREAM_256,
+        BG_INDIGO_256,
+    };
+
+    if(id >= std::size(id_to_terminal_bg_color_256)) return "";
+
+    return id_to_terminal_bg_color_256[id];
+}
+
+inline std::string_view CountryIdToFGColor(uint32_t id)
+{
+    static constexpr const std::string_view id_to_terminal_fg_color_256[]
+    {
+        FG_RED_256,
+        FG_NAVY_BLUE_256,
+        FG_GREEN_256,
+        FG_BLACK_256,
+        FG_TEAL_256,
+        FG_CYAN_256,
+        FG_PURPLE_256,
+        FG_YELLOW_256,
+        FG_OLIVE_256,
+        FG_GRAY_256,
+        FG_SKY_BLUE_256,
+        FG_PINK_256,
+        FG_LIGHT_GREEN_256,
+        FG_LAVENDER_256,
+        FG_ORANGE_256,
+        FG_OLIVE_GREEN_256,
+        FG_LIGHT_GRAY_256,
+        FG_SALMON_256,
+        FG_CREAM_256,
+        FG_INDIGO_256,
+    };
+
+    if(id >= std::size(id_to_terminal_fg_color_256)) return "";
+
+    return id_to_terminal_fg_color_256[id];
+}

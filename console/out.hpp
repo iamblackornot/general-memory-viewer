@@ -183,3 +183,6 @@ inline void PrintArrayDiff(std::ostream& output, RegionType value_type, Observab
         output << COLOR_RESET << "\n";
     }
 }
+
+void PrintColoredSquare(std::ostream& out, TSquare const& square);
+void PrintColoredSquareDiff(std::ostream& out, TSquare const& square, TSquare const& prev);
