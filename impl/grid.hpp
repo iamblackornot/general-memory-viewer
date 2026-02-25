@@ -2,6 +2,20 @@
 
 #include <vector>
 
+struct Coords
+{
+    int row;
+    int column;
+
+    Coords() = default;
+    Coords( int row, int column) : row(row), column(column) {}
+
+    bool operator==(Coords const& rhs) const
+    {
+        return std::tie(this->column, this->row) == std::tie(rhs.column, rhs.row); 
+    }
+};
+
 template <typename T>
 class Grid 
 {
@@ -19,6 +33,11 @@ public:
         return static_cast<int>(data.size() / width); 
     }
 
+    T& At(Coords coords)
+    {
+        return At(coords.row, coords.column);
+    }
+
     T& At(int row, int column)
     { 
         return data.at(row * width + column); 
@@ -27,6 +46,11 @@ public:
     T const& At(int row, int column) const
     { 
         return data.at(row * width + column); 
+    }
+
+    void Fill(T const& value) 
+    { 
+        std::fill(data.begin(), data.end(), value);
     }
 private:
     std::vector<T> data;

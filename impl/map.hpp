@@ -4,20 +4,6 @@
 
 #include "grid.hpp"
 
-struct Coords
-{
-    int row;
-    int column;
-
-    Coords() = default;
-    Coords( int row, int column) : row(row), column(column) {}
-
-    bool operator==(Coords const& rhs) const
-    {
-        return std::tie(this->column, this->row) == std::tie(rhs.column, rhs.row); 
-    }
-};
-
 struct Cell
 {
     static constexpr int NOT_CLAIMED = -1;

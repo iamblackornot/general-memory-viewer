@@ -11,6 +11,7 @@
 #include <console/style.hpp>
 #include <objects/layout.hpp>
 #include <objects/array.hpp>
+#include <impl/map.hpp>
 
 #define PRINT_VALUE_WITDH 10
 
@@ -186,3 +187,18 @@ inline void PrintArrayDiff(std::ostream& output, RegionType value_type, Observab
 
 void PrintColoredSquare(std::ostream& out, TSquare const& square);
 void PrintColoredSquareDiff(std::ostream& out, TSquare const& square, TSquare const& prev);
+
+inline void PrintSameNeighbourMap(Grid<int> const& neighbour_map, Map country_map)
+{
+    for(int row = 0; row < neighbour_map.Height(); ++row)
+    {
+        for(int col = 0; col < neighbour_map.Width(); ++col)
+        {
+            std::cout << CountryIdToFGColor(country_map.At(row, col).country) << neighbour_map.At(row, col);
+        }
+
+        std::cout << "\n";
+    }
+
+    std::cout << COLOR_RESET << "\n";
+}

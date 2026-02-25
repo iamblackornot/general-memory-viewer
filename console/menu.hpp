@@ -17,16 +17,18 @@ void PrintMenu()
     std::cout << "5. Print Neighbour Count Map" << std::endl;
     std::cout << "6. Print Region" << std::endl;
     std::cout << "7. Print to File Region Assigned Coords" << std::endl;
-    std::cout << "8. Generate Map" << std::endl;
+    std::cout << "8. Print Region Sizes" << std::endl;
     std::cout << "9. Print Neighbour Stats" << std::endl;
     std::cout << "10. Print Square Data" << std::endl;
-    std::cout << "11. Print Region Sizes" << std::endl;
+    std::cout << "11. Generate Map" << std::endl;
+    std::cout << "12. Print SameNeighbourMap" << std::endl;
 }
 
 int MenuLoop()
 {
     std::string input;
     General general;
+    MapControl control;
 
     while(input != "q")
     {
@@ -67,9 +69,7 @@ int MenuLoop()
             }
             else if(input == "8")
             {
-                MapControl control;
-                control.Generate(general);
-                ShowMap(control.GetMap());
+                general.GetGameState().PrintRegionSizeTable();
             }
             else if(input == "9")
             {
@@ -92,9 +92,13 @@ int MenuLoop()
             }
             else if(input == "11")
             {
-                general.GetGameState().PrintRegionSizeTable();
+                control.Generate(general);
+                ShowMap(control.GetMap());
             }
-                
+            else if(input == "12")
+            {
+                PrintSameNeighbourMap(control.GetSameNeigbourMap(), control.GetMap());
+            }
         }
     }
 
