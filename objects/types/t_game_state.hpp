@@ -114,9 +114,19 @@ struct TGameState : public ObservableObject
         PrintMemoryLayout(std::cout, GetMemoryLayout(), GetActiveBufferPtr(), GetAddress());
     }    
     
-    void PrintGameStateDiff()
+    void PrintGameStateDiff() const
     {
         PrintMemoryLayoutDiff(std::cout, GetMemoryLayout(), GetActiveBufferPtr(), GetPrevBufferPtr(), GetAddress());
+    }
+
+    void PrintRegionSizeTable() const
+    {
+        uint32_t country_count = CountryCount();
+
+        for(uint32_t i = 0; i < country_count; ++i)
+        {
+            std::cout << std::format("[{}] - {}\n", i + 1, GetRegionArray().At(i).assigned_cell_count);
+        }
     }
 
     TSquaresArray const& GetSquaresArray() const

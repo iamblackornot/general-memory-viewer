@@ -89,7 +89,7 @@
 #define FG_CREAM_256       "\033[38;5;230m"      // Very light yellow
 #define FG_INDIGO_256      "\033[38;5;55m"       // Dark purple
 
-inline std::string_view CountryIdToBGColor(uint32_t id)
+inline std::string_view CountryIdToBGColor(int id)
 {
     static constexpr const std::string_view id_to_terminal_bg_color_256[]
     {
@@ -120,7 +120,7 @@ inline std::string_view CountryIdToBGColor(uint32_t id)
     return id_to_terminal_bg_color_256[id];
 }
 
-inline std::string_view CountryIdToFGColor(uint32_t id)
+inline std::string_view CountryIdToFGColor(int id)
 {
     static constexpr const std::string_view id_to_terminal_fg_color_256[]
     {

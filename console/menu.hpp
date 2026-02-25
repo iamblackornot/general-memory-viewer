@@ -6,7 +6,7 @@
 
 #include <general.hpp>
 #include <console/sfml.hpp>
-#include <impl/generate_map.hpp>
+#include <impl/map_control.hpp>
 
 void PrintMenu()
 {
@@ -20,6 +20,7 @@ void PrintMenu()
     std::cout << "8. Generate Map" << std::endl;
     std::cout << "9. Print Neighbour Stats" << std::endl;
     std::cout << "10. Print Square Data" << std::endl;
+    std::cout << "11. Print Region Sizes" << std::endl;
 }
 
 int MenuLoop()
@@ -66,7 +67,9 @@ int MenuLoop()
             }
             else if(input == "8")
             {
-                GenerateMap(general);
+                MapControl control;
+                control.Generate(general);
+                ShowMap(control.GetMap());
             }
             else if(input == "9")
             {
@@ -86,6 +89,10 @@ int MenuLoop()
                 uint32_t row = std::stoul(input);
 
                 general.GetGameState().GetSquaresArray().PrintSquareData(row, col);
+            }
+            else if(input == "11")
+            {
+                general.GetGameState().PrintRegionSizeTable();
             }
                 
         }

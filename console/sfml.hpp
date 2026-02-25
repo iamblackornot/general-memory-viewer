@@ -5,6 +5,7 @@
 
 #include <general.hpp>
 #include <fwd.hpp>
+#include <impl/map.hpp>
 
 #include <chrono>
 #include <thread>
@@ -27,7 +28,7 @@ namespace
         return sf::Color(color);
     }
 
-    inline sf::Color CellIdToColor(uint8_t id)
+    inline sf::Color CellIdToColor(int id)
     {
         static constexpr sf::Color id_to_color[]
         {
@@ -53,12 +54,12 @@ namespace
             sf::Color( 64,   0, 128), // Indigo
         };
 
-        if (id < 1 || id > std::size(id_to_color)) 
+        if (id < 0 || id >= std::size(id_to_color)) 
         {
             return sf::Color::White;
         }
 
-        return id_to_color[id - 1];
+        return id_to_color[id];
     }
 
     inline void DrawCheckerPattern(sf::RenderWindow& window, sf::RectangleShape& cell)
@@ -113,7 +114,7 @@ namespace
             static_cast<float>(row * CELL_SIZE), 
         });
 
-        sf::Color color = CellIdToColor(square.country_id);
+        sf::Color color = CellIdToColor(square.country_id - 1);
 
         cell.setFillColor(color);
         window.draw(cell);
@@ -135,15 +136,27 @@ namespace
         }
     }
 
-    inline void DrawAssignedCoords(sf::RenderWindow& window, AssignedCoords const& assigned_coords)
+    inline void DrawCell(sf::RenderWindow& window, Cell const& cell, int row, int col)
     {
-        for(uint8_t i = 0; i < assigned_coords.size(); ++i)
-        {
-            auto const& country_coords = assigned_coords[i];
+        sf::RectangleShape rect(sf::Vector2f(CELL_SIZE, CELL_SIZE));
+        rect.setPosition({ 
+            static_cast<float>(col * CELL_SIZE), 
+            static_cast<float>(row * CELL_SIZE), 
+        });
 
-            for(auto const& coord: country_coords)
+        sf::Color color = CellIdToColor(cell.country);
+
+        rect.setFillColor(color);
+        window.draw(rect);
+    }
+
+    inline void DrawMap(sf::RenderWindow& window, Map const& map)
+    {
+        for(int row = 0; row < map.Height(); ++row)
+        {
+            for(int col = 0; col < map.Width(); ++col)
             {
-                DrawSquare(window, TSquare{ .country_id = (uint8_t)(i + 1u) }, coord.row, coord.column);
+                DrawCell(window, map.At(row, col), row, col);
             }
         }
     }
@@ -179,9 +192,12 @@ inline void ShowMap(General& general)
     }
 }
 
-inline void ShowAssignedMap(AssignedCoords const& assigned_coords, uint32_t size, std::chrono::milliseconds frame_time = 0ms)
+inline void ShowMap(Map const& map)
 {
-    sf::RenderWindow window(sf::VideoMode({ CELL_SIZE * size, CELL_SIZE * size, }), TITLE);
+    sf::RenderWindow window(sf::VideoMode({ 
+        CELL_SIZE * static_cast<unsigned int>(map.Width()), 
+        CELL_SIZE * static_cast<unsigned int>(map.Height()) 
+    }), TITLE);
 
     while (window.isOpen())
     {
@@ -192,23 +208,49 @@ inline void ShowAssignedMap(AssignedCoords const& assigned_coords, uint32_t size
 
             if (auto* keyEvent = event->getIf<sf::Event::KeyPressed>())
             {
-                if (keyEvent->code == sf::Keyboard::Key::Space)
-                {
-                    window.close();
-                }
+                window.close();
             }
         }
 
         window.clear();
 
-        DrawAssignedCoords(window, assigned_coords);
+        DrawMap(window, map);
 
         window.display();
-
-        if(frame_time > 0ms)
-        {
-            std::this_thread::sleep_for(frame_time);
-            window.close();
-        }
     }
 }
+
+
+// inline void ShowAssignedMap(AssignedCoords const& assigned_coords, uint32_t size, std::chrono::milliseconds frame_time = 0ms)
+// {
+//     sf::RenderWindow window(sf::VideoMode({ CELL_SIZE * size, CELL_SIZE * size, }), TITLE);
+
+//     while (window.isOpen())
+//     {
+//         while (const std::optional event = window.pollEvent())
+//         {
+//             if (event->is<sf::Event::Closed>())
+//                 window.close();
+
+//             if (auto* keyEvent = event->getIf<sf::Event::KeyPressed>())
+//             {
+//                 if (keyEvent->code == sf::Keyboard::Key::Space)
+//                 {
+//                     window.close();
+//                 }
+//             }
+//         }
+
+//         window.clear();
+
+//         DrawAssignedCoords(window, assigned_coords);
+
+//         window.display();
+
+//         if(frame_time > 0ms)
+//         {
+//             std::this_thread::sleep_for(frame_time);
+//             window.close();
+//         }
+//     }
+// }
