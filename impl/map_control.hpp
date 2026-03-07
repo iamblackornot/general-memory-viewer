@@ -2,16 +2,20 @@
 
 #include <general.hpp>
 #include <console/sfml.hpp>
+
+#include "border.hpp"
 #include "map.hpp"
 
 #include <time.h>
+#include <list>
 
 class MapControl
 {
     using AssignedCoords = std::vector<std::vector<Coords>>; 
 public:
     Map const& GetMap() const { return map; } 
-    Grid<int> const& GetSameNeigbourMap() const { return same_neighbour_map; }
+    Grid<int> const& GetSameNeigbourMap() const { return foreign_neighbour_map; }
+    std::vector<Border> const& GetBorders() const { return borders; }
 
     void InitMap(int country_count, int width, int height);
     void Generate(General const& general)
@@ -22,8 +26,13 @@ public:
         int territory_size = general.GetGameState().TerritorySize();
 
         map = Map(territory_size, territory_size);
-        same_neighbour_map = Grid<int>(territory_size, territory_size);
-        same_neighbour_map.Fill(0);
+        foreign_neighbour_map = Grid<int>(territory_size, territory_size);
+        foreign_neighbour_map.Fill(0);
+
+        borders.clear();
+        borders.resize(country_count);
+        country_sizes.clear();
+        country_sizes.resize(country_count, 0);
 
         AssignedCoords assigned_coords = ClaimFirstCells(general);
         FloodFill(assigned_coords);
@@ -38,7 +47,8 @@ public:
         {
             TCoords const& coords = regions.GetAssignedCoords(i).At(0);
             assigned_coords.at(i).emplace_back(coords.row, coords.column);
-            map.At(coords.row, coords.column).country = i;
+
+            ClaimCell(coords.row, coords.column, i);
 
             coords.Print(std::cout);
             std::cout << "\n";
@@ -84,11 +94,7 @@ public:
                     ++countries_done_count;
                 }
             }
-
-            //ShowAssignedTable(assigned_coords, general.GetGameState().TerritorySize(), 100ms);
         }
-
-        //ShowAssignedMap(assigned_coords, general.GetGameState().TerritorySize());
 
         for(int i = 0; i < country_count; ++i)
         {
@@ -108,56 +114,145 @@ public:
         if(new_country != prev_country)
         {
             map.At(coords).country = new_country;
-            UpdateSameNeighbourMap(coords, new_country, prev_country);
+            country_sizes[new_country] += 1;
+
+            if(prev_country != Cell::NOT_CLAIMED)
+            {
+                country_sizes[prev_country] -= 1;
+            }
+            
+            UpdateNeighbours(coords, new_country, prev_country);
         }
     }
 
-    void UpdateSameNeighbourMap(Coords coords, int new_country, int prev_country)
-    {
-        std::vector<Coords> coords_to_update;
+    void UpdateNeighbours(Coords coords, int new_country, int prev_country)
+    {      
+        int foreign_neighbour_count = 0;
 
-        if(Coords neighbour_coords = map.GetUpNeighbourCoords(coords); neighbour_coords != coords) 
-        { 
-            coords_to_update.push_back(neighbour_coords); 
-        }
-
-        if(Coords neighbour_coords = map.GetRightNeighbourCoords(coords); neighbour_coords != coords) 
-        { 
-            coords_to_update.push_back(neighbour_coords); 
-        }
-
-        if(Coords neighbour_coords = map.GetDownNeighbourCoords(coords); neighbour_coords != coords) 
-        { 
-            coords_to_update.push_back(neighbour_coords); 
-        }
-
-        if(Coords neighbour_coords = map.GetLeftNeighbourCoords(coords); neighbour_coords != coords) 
-        { 
-            coords_to_update.push_back(neighbour_coords); 
-        }
-        
-        int same_neighbour_count = 0;
-
-        for(const Coords coords : coords_to_update)
+        for(const Coords neighbour_coords : map.GetAllNeighbourCoords(coords))
         {
-            int neighbour_country = map.At(coords).country;
+            int neighbour_country = map.At(neighbour_coords).country;
+
+            if(neighbour_country == Cell::NOT_CLAIMED)
+            {
+                continue;
+            }
 
             if(neighbour_country == new_country)
             {
-                ++same_neighbour_map.At(coords);
-                ++same_neighbour_count;
+                if(prev_country != Cell::NOT_CLAIMED)
+                {
+                    if(foreign_neighbour_map.At(neighbour_coords) == 1)
+                    {
+                        borders.at(neighbour_country).Remove(neighbour_coords);
+                    }
+
+                    foreign_neighbour_map.At(neighbour_coords) = (std::max)(0, foreign_neighbour_map.At(neighbour_coords) - 1);
+                }
             }
-            else if(neighbour_country == prev_country)
+            else 
             {
-                same_neighbour_map.At(coords) = (std::max)(0, same_neighbour_map.At(coords) - 1);
+                ++foreign_neighbour_count;
+                foreign_neighbour_map.At(neighbour_coords) += 1;
+
+                if(foreign_neighbour_map.At(neighbour_coords) == 1)
+                {
+                    borders.at(neighbour_country).Add(neighbour_coords);
+                }              
             }
         }
 
-        same_neighbour_map.At(coords) = same_neighbour_count;
+        foreign_neighbour_map.At(coords) = foreign_neighbour_count;
+
+        if(prev_country != Cell::NOT_CLAIMED)
+        {
+            borders.at(prev_country).Remove(coords);
+        }
+
+        if(foreign_neighbour_count > 0)
+        {
+            borders.at(new_country).Add(coords);
+        }
+    }
+
+    int TransferCells(int country_from, int country_to, int count)
+    {
+        if(country_from == country_to)
+        {
+            return 0;
+        }
+        
+        int transfered = 0;
+        TransferCandidates candidates;
+
+        for(auto const coords : borders.at(country_from))
+        {
+            if(map.HasNeighbour(coords, country_to))
+            {
+                candidates.Add(coords, foreign_neighbour_map.At(coords));
+            }
+        }
+
+        Coords coords;
+        while(transfered < count && candidates.PopNext(coords))
+        {
+            ClaimCell(coords, country_to);
+            transfered += 1;
+
+            for(Coords const neighbour_coords : map.GetAllNeighbourCoords(coords))
+            {
+                if(map.At(neighbour_coords).country == country_from)
+                {
+                    candidates.Add(neighbour_coords, foreign_neighbour_map.At(neighbour_coords));
+                }
+            }
+        }
+        
+        return transfered;
+    }
+
+    int TransferCellsDebug(int country_from, int country_to, int count, std::function<void()> callback = [](){})
+    {
+        if(country_from == country_to)
+        {
+            return 0;
+        }
+        
+        int transfered = 0;
+        TransferCandidates candidates;
+
+        for(auto const coords : borders.at(country_from))
+        {
+            if(map.HasNeighbour(coords, country_to))
+            {
+                candidates.Add(coords, foreign_neighbour_map.At(coords));
+            }
+        }
+
+        Coords coords;
+        while(transfered < count && candidates.PopNext(coords))
+        {
+            callback();
+
+            ClaimCell(coords, country_to);
+            transfered += 1;
+
+            for(Coords const neighbour_coords : map.GetAllNeighbourCoords(coords))
+            {
+                if(map.At(neighbour_coords).country == country_from)
+                {
+                    candidates.Add(neighbour_coords, foreign_neighbour_map.At(neighbour_coords));
+                }
+            }
+        }
+        
+        return transfered;
     }
 
 private:
     Map map;
-    Grid<int> same_neighbour_map;
+    Grid<int> foreign_neighbour_map;
+    std::vector<Border> borders;
+    std::vector<int> country_sizes;
     int country_count = 0;
 };

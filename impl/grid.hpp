@@ -16,6 +16,16 @@ struct Coords
     }
 };
 
+template<>
+struct std::hash<Coords>
+{
+    size_t operator()(Coords const& coords) const noexcept
+    {
+        return static_cast<size_t>(coords.row)
+             | static_cast<size_t>(coords.column) << sizeof(int); 
+    }
+};
+
 template <typename T>
 class Grid 
 {
@@ -34,6 +44,11 @@ public:
     }
 
     T& At(Coords coords)
+    {
+        return At(coords.row, coords.column);
+    }
+
+    T const& At(Coords coords) const
     {
         return At(coords.row, coords.column);
     }

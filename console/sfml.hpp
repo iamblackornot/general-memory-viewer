@@ -5,12 +5,10 @@
 
 #include <general.hpp>
 #include <fwd.hpp>
+
 #include <impl/map.hpp>
-
-#include <chrono>
-#include <thread>
-
-using namespace std::chrono;
+#include <impl/border.hpp>
+#include <impl/map_control.hpp>
 
 namespace
 {
@@ -135,31 +133,6 @@ namespace
             }
         }
     }
-
-    inline void DrawCell(sf::RenderWindow& window, Cell const& cell, int row, int col)
-    {
-        sf::RectangleShape rect(sf::Vector2f(CELL_SIZE, CELL_SIZE));
-        rect.setPosition({ 
-            static_cast<float>(col * CELL_SIZE), 
-            static_cast<float>(row * CELL_SIZE), 
-        });
-
-        sf::Color color = CellIdToColor(cell.country);
-
-        rect.setFillColor(color);
-        window.draw(rect);
-    }
-
-    inline void DrawMap(sf::RenderWindow& window, Map const& map)
-    {
-        for(int row = 0; row < map.Height(); ++row)
-        {
-            for(int col = 0; col < map.Width(); ++col)
-            {
-                DrawCell(window, map.At(row, col), row, col);
-            }
-        }
-    }
 }
 
 inline void ShowMap(General& general)
@@ -192,65 +165,5 @@ inline void ShowMap(General& general)
     }
 }
 
-inline void ShowMap(Map const& map)
-{
-    sf::RenderWindow window(sf::VideoMode({ 
-        CELL_SIZE * static_cast<unsigned int>(map.Width()), 
-        CELL_SIZE * static_cast<unsigned int>(map.Height()) 
-    }), TITLE);
-
-    while (window.isOpen())
-    {
-        while (const std::optional event = window.pollEvent())
-        {
-            if (event->is<sf::Event::Closed>())
-                window.close();
-
-            if (auto* keyEvent = event->getIf<sf::Event::KeyPressed>())
-            {
-                window.close();
-            }
-        }
-
-        window.clear();
-
-        DrawMap(window, map);
-
-        window.display();
-    }
-}
-
-
-// inline void ShowAssignedMap(AssignedCoords const& assigned_coords, uint32_t size, std::chrono::milliseconds frame_time = 0ms)
-// {
-//     sf::RenderWindow window(sf::VideoMode({ CELL_SIZE * size, CELL_SIZE * size, }), TITLE);
-
-//     while (window.isOpen())
-//     {
-//         while (const std::optional event = window.pollEvent())
-//         {
-//             if (event->is<sf::Event::Closed>())
-//                 window.close();
-
-//             if (auto* keyEvent = event->getIf<sf::Event::KeyPressed>())
-//             {
-//                 if (keyEvent->code == sf::Keyboard::Key::Space)
-//                 {
-//                     window.close();
-//                 }
-//             }
-//         }
-
-//         window.clear();
-
-//         DrawAssignedCoords(window, assigned_coords);
-
-//         window.display();
-
-//         if(frame_time > 0ms)
-//         {
-//             std::this_thread::sleep_for(frame_time);
-//             window.close();
-//         }
-//     }
-// }
+void ShowMap(Map const& map);
+void ShowBorderMap(MapControl& map_control);

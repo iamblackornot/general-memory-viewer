@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "grid.hpp"
+#include "const.hpp"
 
 struct Cell
 {
@@ -13,8 +14,6 @@ struct Cell
 class Map : public Grid<Cell>
 {
 public:
-    static constexpr int DIRECTIONS_COUNT = 4;
-
     Map() : Map(0, 0) {}
     Map(int width, int height, bool is_cylindrical = false) 
         : Grid(width, height),
@@ -38,6 +37,63 @@ public:
     Coords GetDownNeighbourCoords(Coords coords) const
     {
         return GetOffsetCoords(coords, 0, -1);
+    }
+
+    std::vector<Coords> GetAllNeighbourCoords(Coords coords) const
+    {
+        std::vector<Coords> res;
+
+        if(Coords neighbour_coords = GetUpNeighbourCoords(coords); neighbour_coords != coords) 
+        { 
+            res.push_back(neighbour_coords); 
+        }
+
+        if(Coords neighbour_coords = GetRightNeighbourCoords(coords); neighbour_coords != coords) 
+        { 
+            res.push_back(neighbour_coords); 
+        }
+
+        if(Coords neighbour_coords = GetDownNeighbourCoords(coords); neighbour_coords != coords) 
+        { 
+            res.push_back(neighbour_coords); 
+        }
+
+        if(Coords neighbour_coords = GetLeftNeighbourCoords(coords); neighbour_coords != coords) 
+        { 
+            res.push_back(neighbour_coords); 
+        }
+
+        return res;
+    }
+
+    int GetNeighbourCount(Coords coords, int neighbour_country) const
+    {
+        int res = 0;
+
+        for(auto const neighbour_coords : GetAllNeighbourCoords(coords))
+        {
+            if(At(neighbour_coords).country == neighbour_country)
+            {
+                ++res;
+            }
+        }
+
+        return res;
+    }
+
+    bool HasNeighbour(Coords coords, int neighbour_country) const
+    {
+        int res = 0;
+
+        for(auto const neighbour_coords : GetAllNeighbourCoords(coords))
+        {
+            if(At(neighbour_coords).country == neighbour_country)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     Coords GetOffsetCoords(Coords coords, int x_offset, int y_offset) const

@@ -22,6 +22,10 @@ void PrintMenu()
     std::cout << "10. Print Square Data" << std::endl;
     std::cout << "11. Generate Map" << std::endl;
     std::cout << "12. Print SameNeighbourMap" << std::endl;
+    std::cout << "13. Print BorderMap" << std::endl;
+    std::cout << "14. Transfer Cells (from, to, count)" << std::endl;
+    std::cout << "15. Claim Cell (row, col, country)" << std::endl;
+    std::cout << "16. Transfer Cells (from, to, count) Visualize Iterations" << std::endl;
 }
 
 int MenuLoop()
@@ -98,6 +102,48 @@ int MenuLoop()
             else if(input == "12")
             {
                 PrintSameNeighbourMap(control.GetSameNeigbourMap(), control.GetMap());
+            }
+            else if(input == "13")
+            {
+                ShowBorderMap(control);
+            }
+            else if(input == "14")
+            {
+                int from;
+                int to;
+                int count;
+
+                std::cin >> from;
+                std::cin >> to;
+                std::cin >> count;
+
+                int transfered = control.TransferCells(from, to, count);
+                std::cout << "\ntransfered " << transfered << std::endl;
+            }
+            else if(input == "15")
+            {
+                int row;
+                int col;
+                int country;
+
+                std::cin >> row;
+                std::cin >> col;
+                std::cin >> country;
+
+                control.ClaimCell(row, col, country); 
+            }
+            else if(input == "16")
+            {
+                int from;
+                int to;
+                int count;
+
+                std::cin >> from;
+                std::cin >> to;
+                std::cin >> count;
+
+                int transfered = control.TransferCellsDebug(from, to, count, [&](){ ShowBorderMap(control); });
+                std::cout << "\ntransfered " << transfered << std::endl;
             }
         }
     }
